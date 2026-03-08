@@ -1,8 +1,19 @@
 import { LayoutGrid, List, Search, Star, BookOpen, ChevronRight, Bookmark } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import Link from "next/link";
+import { fetchPublic } from "@/lib/api";
 
-export default function LibraryPage() {
+export const revalidate = 60;
+
+export default async function LibraryPage() {
+    let books: any[] = [];
+    try {
+        const res = await fetchPublic("/api/books/", { next: { revalidate: 60 } });
+        if (res.ok) books = await res.json();
+    } catch (e) {
+        console.error("Failed to fetch books", e);
+    }
+
     const categories = [
         { title: "Kvant Fizikasi", count: 120 },
         { title: "Dasturlash / Algoritmlar", count: 85 },
@@ -104,27 +115,31 @@ export default function LibraryPage() {
                         </div>
 
                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-5">
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item) => (
-                                <Card key={item} className="flex flex-col group cursor-pointer hover:border-foreground/30 transition-all hover:bg-muted/10 h-full rounded-xl overflow-hidden shadow-none border-border">
-                                    <Link href={`/library/book-${item}`} className="flex-1 flex flex-col h-full">
+                            {books.length > 0 ? books.map((book) => (
+                                <Card key={book.id} className="flex flex-col group cursor-pointer hover:border-foreground/30 transition-all hover:bg-muted/10 h-full rounded-xl overflow-hidden shadow-none border-border">
+                                    <Link href={book.pdf_file || "#"} target={book.pdf_file ? "_blank" : "_self"} className="flex-1 flex flex-col h-full">
                                         <div className="aspect-[3/4] p-4 flex flex-col items-center justify-center bg-muted/30 relative overflow-hidden backdrop-blur-md shrink-0 border-b border-border/50">
-                                            <div className="w-2/3 h-5/6 bg-gradient-to-tr from-foreground/80 to-muted-foreground rounded-md flex items-center justify-center border border-border shadow-md transform group-hover:scale-105 transition-transform duration-500 group-hover:-rotate-3">
-                                                <BookOpen className="w-8 h-8 text-background/50 mix-blend-difference" />
-                                            </div>
+                                            {book.cover_image ? (
+                                                <img src={book.cover_image} alt={book.title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500 rounded" />
+                                            ) : (
+                                                <div className="w-2/3 h-5/6 bg-gradient-to-tr from-foreground/80 to-muted-foreground rounded-md flex items-center justify-center border border-border shadow-md transform group-hover:scale-105 transition-transform duration-500 group-hover:-rotate-3">
+                                                    <BookOpen className="w-8 h-8 text-background/50 mix-blend-difference" />
+                                                </div>
+                                            )}
                                         </div>
                                         <CardHeader className="flex-1 p-3 pb-2 bg-transparent">
                                             <h3 className="font-playfair font-bold text-sm md:text-base text-foreground group-hover:text-foreground/80 transition-colors line-clamp-2 leading-tight">
-                                                Xatoliksiz Hisoblash Kitobi
+                                                {book.title}
                                             </h3>
-                                            <p className="font-inter text-[10px] md:text-xs text-foreground/60 mt-1 font-medium">Asosiy Muallif</p>
+                                            <p className="font-inter text-[10px] md:text-xs text-foreground/60 mt-1 font-medium">{book.author}</p>
                                         </CardHeader>
                                         <CardContent className="p-3 pt-0 mt-auto bg-transparent">
                                             <div className="flex items-center justify-between pb-2 mb-2 border-b border-border/50">
                                                 <div className="flex items-center gap-1 text-foreground">
                                                     <Star className="w-3 h-3 fill-foreground text-foreground" />
-                                                    <span className="text-[10px] font-semibold">4.8</span>
+                                                    <span className="text-[10px] font-semibold">{book.download_count || "4.8"}</span>
                                                 </div>
-                                                <span className="text-muted-foreground text-[10px] md:text-xs font-medium bg-background px-1.5 py-0.5 rounded border border-border">PDF</span>
+                                                <span className="text-muted-foreground text-[10px] md:text-xs font-medium bg-background px-1.5 py-0.5 rounded border border-border">{book.pdf_file ? "PDF" : "Kitob"}</span>
                                             </div>
                                             <button className="w-full flex justify-center items-center gap-1.5 py-1.5 text-[10px] md:text-xs font-semibold rounded text-background bg-foreground hover:bg-foreground/90 transition-colors">
                                                 O'qish <ChevronRight className="w-3 h-3" />
@@ -132,7 +147,12 @@ export default function LibraryPage() {
                                         </CardContent>
                                     </Link>
                                 </Card>
-                            ))}
+                            )) : (
+                                <div className="col-span-full py-20 text-center text-muted-foreground">
+                                    <BookOpen className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                                    <p>Hozircha kitoblar mavjud emas.</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
