@@ -3,7 +3,8 @@ import { ArrowLeft, GraduationCap, Clock, Star, Play, CheckCircle2, User } from 
 import { YouTubePlayer } from "@/components/youtube-player";
 import { courses } from "@/lib/mockData";
 
-export default function AcademyDetailPage({ params }: { params: { id: string } }) {
+export default async function AcademyDetailPage(props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     // Normally fetch data by params.id
     const course = courses[0]; // mock fallback
 

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { ArrowLeft, BookOpen, Clock, Star, Download, Bookmark, Share2 } from "lucide-react";
 
-export default function BookDetailPage({ params }: { params: { id: string } }) {
+export default async function BookDetailPage(props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     // In a real app, you would fetch data using params.id
 
     return (
