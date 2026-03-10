@@ -90,7 +90,7 @@ export default async function AcademyPage() {
                                             <User className="w-3.5 h-3.5" />
                                             <span className="text-xs font-medium">{course.instructor}</span>
                                         </div>
-                                        <Link href={`#`} className="text-xs opacity-75 cursor-not-allowed text-foreground bg-background hover:bg-muted transition-colors px-3 py-1.5 rounded-lg border border-border font-medium shadow-sm">
+                                        <Link href={`/academy/${course.slug || course.id}`} className="text-xs opacity-75 text-foreground bg-background hover:bg-muted transition-colors px-3 py-1.5 rounded-lg border border-border font-medium shadow-sm">
                                             Boshlash
                                         </Link>
                                     </div>

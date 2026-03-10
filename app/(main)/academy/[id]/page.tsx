@@ -1,12 +1,47 @@
+import { fetchPublic } from "@/lib/api";
+import { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, GraduationCap, Clock, Star, Play, CheckCircle2, User } from "lucide-react";
 import { YouTubePlayer } from "@/components/youtube-player";
-import { courses } from "@/lib/mockData";
+
+export async function generateMetadata(props: { params: Promise<{ id: string }> }): Promise<Metadata> {
+    const params = await props.params;
+    let title = "Kurs tafsilotlari - QuantumUz";
+    try {
+        const res = await fetchPublic(`/api/courses/${params.id}/`);
+        if (res.ok) {
+            const data = await res.json();
+            title = `${data.title} - QuantumUz Academy`;
+        }
+    } catch (e) {}
+    return { title };
+}
 
 export default async function AcademyDetailPage(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
-    // Normally fetch data by params.id
-    const course = courses[0]; // mock fallback
+    let course = null;
+    
+    try {
+        const res = await fetchPublic(`/api/courses/${params.id}/`, { next: { revalidate: 60 } });
+        if (res.ok) {
+            course = await res.json();
+        }
+    } catch (e) {
+        console.error("Failed to fetch course", e);
+    }
+
+    if (!course) {
+        return (
+            <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
+                <GraduationCap className="w-16 h-16 text-muted-foreground/30 mb-4" />
+                <h1 className="text-2xl md:text-3xl font-playfair font-bold mb-2">Kurs topilmadi</h1>
+                <p className="text-muted-foreground">Siz qidirayotgan sahifa mavjud emas yoki hali chop etilmagan.</p>
+                <Link href="/academy" className="mt-8 px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                    Akademiyaga qaytish
+                </Link>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col relative w-full overflow-hidden bg-background min-h-screen">
@@ -22,9 +57,9 @@ export default async function AcademyDetailPage(props: { params: Promise<{ id: s
                     <div className="flex flex-wrap gap-2 items-center">
                         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-muted border border-border text-[10px] text-foreground font-semibold uppercase tracking-wider backdrop-blur-md">
                             <GraduationCap className="w-3.5 h-3.5" />
-                            {course?.level || "Boshlang'ich"}
+                            {course?.level_type || "Boshlang'ich"}
                         </div>
-                        {course?.tags.map(t => (
+                        {course?.tags_names?.map((t: string) => (
                             <span key={t} className="px-2 py-1 bg-background border border-border text-[10px] font-semibold text-muted-foreground rounded uppercase tracking-wider">{t}</span>
                         ))}
                     </div>
@@ -38,8 +73,8 @@ export default async function AcademyDetailPage(props: { params: Promise<{ id: s
 
                     <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground font-inter pt-4 border-t border-border">
                         <div className="flex items-center gap-1.5"><User className="w-4 h-4 text-foreground" /> Ustoz: <span className="font-semibold text-foreground">{course?.instructor}</span></div>
-                        <div className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-foreground" /> Davomiyligi: <span className="font-semibold text-foreground">{course?.duration}</span></div>
-                        <div className="flex items-center gap-1.5"><Star className="w-4 h-4 fill-foreground text-foreground" /> 4.9 Reyting (2.5k O'quvchi)</div>
+                        <div className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-foreground" /> Davomiyligi: <span className="font-semibold text-foreground">{course?.duration_hours || "0"} soat</span></div>
+                        <div className="flex items-center gap-1.5"><Star className="w-4 h-4 fill-foreground text-foreground" /> 4.9 Reyting</div>
                     </div>
                 </div>
             </section>

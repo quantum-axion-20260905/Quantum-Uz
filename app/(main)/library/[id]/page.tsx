@@ -1,9 +1,45 @@
+import { fetchPublic } from "@/lib/api";
+import { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, BookOpen, Clock, Star, Download, Bookmark, Share2 } from "lucide-react";
 
+export async function generateMetadata(props: { params: Promise<{ id: string }> }): Promise<Metadata> {
+    const params = await props.params;
+    let title = "Kitob tafsilotlari - QuantumUz";
+    try {
+        const res = await fetchPublic(`/api/books/${params.id}/`);
+        if (res.ok) {
+            const data = await res.json();
+            title = `${data.title} - QuantumUz Library`;
+        }
+    } catch (e) {}
+    return { title };
+}
+
 export default async function BookDetailPage(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
-    // In a real app, you would fetch data using params.id
+    let book = null;
+    try {
+        const res = await fetchPublic(`/api/books/${params.id}/`, { next: { revalidate: 60 } });
+        if (res.ok) {
+            book = await res.json();
+        }
+    } catch (e) {
+        console.error("Failed to fetch book", e);
+    }
+
+    if (!book) {
+        return (
+            <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
+                <BookOpen className="w-16 h-16 text-muted-foreground/30 mb-4" />
+                <h1 className="text-2xl md:text-3xl font-playfair font-bold mb-2">Kitob topilmadi</h1>
+                <p className="text-muted-foreground">Siz qidirayotgan kitob mavjud emas yoki hali yuklanmagan.</p>
+                <Link href="/library" className="mt-8 px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                    Kutubxonaga qaytish
+                </Link>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col relative w-full overflow-hidden bg-background min-h-screen">
@@ -17,9 +53,13 @@ export default async function BookDetailPage(props: { params: Promise<{ id: stri
                     {/* Left Cover Image */}
                     <div className="w-full lg:w-1/3 xl:w-1/4 shrink-0">
                         <div className="w-full aspect-[3/4] rounded-2xl bg-muted/30 border border-border flex items-center justify-center relative overflow-hidden shadow-lg group">
-                            <div className="w-3/4 h-5/6 bg-gradient-to-tr from-foreground/80 to-muted-foreground rounded-lg flex items-center justify-center border border-border shadow-md">
-                                <BookOpen className="w-12 h-12 text-background/50 mix-blend-difference" />
-                            </div>
+                            {book.cover_image ? (
+                                <img src={book.cover_image} alt={book.title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" />
+                            ) : (
+                                <div className="w-3/4 h-5/6 bg-gradient-to-tr from-foreground/80 to-muted-foreground rounded-lg flex items-center justify-center border border-border shadow-md">
+                                    <BookOpen className="w-12 h-12 text-background/50 mix-blend-difference" />
+                                </div>
+                            )}
                             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/90 to-transparent p-6 translate-y-full group-hover:translate-y-0 transition-transform">
                                 <div className="flex justify-center gap-4">
                                     <button className="p-3 bg-background border border-border rounded-full hover:bg-muted text-foreground transition-colors"><Bookmark className="w-4 h-4" /></button>
@@ -33,36 +73,39 @@ export default async function BookDetailPage(props: { params: Promise<{ id: stri
                     <div className="w-full lg:w-2/3 xl:w-3/4 space-y-6">
                         <div className="space-y-3">
                             <div className="flex gap-2 items-center">
-                                <span className="text-[10px] uppercase tracking-widest bg-foreground text-background font-semibold px-2 py-1 rounded">Kvant Fizika</span>
-                                <span className="text-[10px] uppercase tracking-widest bg-muted text-foreground border border-border font-semibold px-2 py-1 rounded">Darslik</span>
+                                <span className="text-[10px] uppercase tracking-widest bg-foreground text-background font-semibold px-2 py-1 rounded">{book.category_name || "Kitob"}</span>
+                                <span className="text-[10px] uppercase tracking-widest bg-muted text-foreground border border-border font-semibold px-2 py-1 rounded">{book.language || "O'zbek"}</span>
                             </div>
                             <h1 className="text-3xl md:text-5xl font-playfair font-bold text-foreground leading-[1.15]">
-                                Xatoliksiz Hisoblash: <br className="hidden md:block" />
-                                <span className="text-muted-foreground italic">Nazariyadan tortib to amaliyotgacha</span>
+                                {book.title}
                             </h1>
-                            <p className="font-inter text-foreground/80 text-sm md:text-base font-medium">Asosiy Muallif: Dr. Alisher Vohidov</p>
+                            <p className="font-inter text-foreground/80 text-sm md:text-base font-medium">Muallif: {book.author}</p>
                         </div>
 
                         <div className="flex flex-wrap items-center gap-4 md:gap-8 pb-6 border-b border-border text-sm text-muted-foreground font-inter">
-                            <div className="flex items-center gap-1.5"><Star className="w-4 h-4 fill-foreground text-foreground" /> 4.8 / 5.0 (120 sharh)</div>
-                            <div className="flex items-center gap-1.5"><Clock className="w-4 h-4" /> 2023-yil Nashr</div>
-                            <div className="px-2 py-1 bg-background border border-border rounded text-xs font-semibold">PDF format, 15 MB</div>
+                            <div className="flex items-center gap-1.5"><Star className="w-4 h-4 fill-foreground text-foreground" /> 4.8 / 5.0</div>
+                            <div className="flex items-center gap-1.5"><Clock className="w-4 h-4" /> {book.published_date ? new Date(book.published_date).getFullYear() : "Noma'lum"} Nashr</div>
+                            {book.pages && <div className="px-2 py-1 bg-background border border-border rounded text-xs font-semibold">{book.pages} sahifa</div>}
                         </div>
 
                         <div className="space-y-4">
                             <h3 className="text-xl font-playfair font-bold text-foreground">Kitob haqida</h3>
                             <p className="font-inter text-sm md:text-base text-muted-foreground leading-relaxed max-w-3xl">
-                                Ushbu kitobda kvant hisoblash faniga oid zamonaviy arxitekturalar o'zbek tilida mantiqiy tarzda tushuntirilgan. Fundamental kubit mantiqlaridan tortib to xatoliklarni tuzatish (quantum error correction) jarayonlarigacha to'liq qamrab olingan. Har bir bo'lim oxirida laboratoriya ishlari mavjud.
+                                {book.description}
                             </p>
                         </div>
 
                         <div className="pt-6 flex flex-col sm:flex-row gap-4">
-                            <button className="px-8 py-3 bg-foreground text-background font-semibold rounded-xl shadow-md hover:bg-foreground/90 transition-colors flex justify-center items-center gap-2">
-                                <BookOpen className="w-4 h-4" /> Kitobni o'qish (Online)
-                            </button>
-                            <button className="px-8 py-3 bg-background border border-border text-foreground font-semibold rounded-xl hover:bg-muted transition-colors flex justify-center items-center gap-2">
-                                <Download className="w-4 h-4" /> Yuklab olish (.pdf)
-                            </button>
+                            {book.pdf_file && (
+                                <Link href={book.pdf_file} target="_blank" className="px-8 py-3 bg-foreground text-background font-semibold rounded-xl shadow-md hover:bg-foreground/90 transition-colors flex justify-center items-center gap-2">
+                                    <BookOpen className="w-4 h-4" /> Kitobni o'qish (Online)
+                                </Link>
+                            )}
+                            {book.sample_pdf_file && (
+                                <Link href={book.sample_pdf_file} target="_blank" className="px-8 py-3 bg-background border border-border text-foreground font-semibold rounded-xl hover:bg-muted transition-colors flex justify-center items-center gap-2">
+                                    <Download className="w-4 h-4" /> Namunani yuklab olish
+                                </Link>
+                            )}
                         </div>
                     </div>
 

@@ -117,7 +117,7 @@ export default async function LibraryPage() {
                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-5">
                             {books.length > 0 ? books.map((book) => (
                                 <Card key={book.id} className="flex flex-col group cursor-pointer hover:border-foreground/30 transition-all hover:bg-muted/10 h-full rounded-xl overflow-hidden shadow-none border-border">
-                                    <Link href={book.pdf_file || "#"} target={book.pdf_file ? "_blank" : "_self"} className="flex-1 flex flex-col h-full">
+                                    <Link href={`/library/${book.slug || book.id}`} className="flex-1 flex flex-col h-full">
                                         <div className="aspect-[3/4] p-4 flex flex-col items-center justify-center bg-muted/30 relative overflow-hidden backdrop-blur-md shrink-0 border-b border-border/50">
                                             {book.cover_image ? (
                                                 <img src={book.cover_image} alt={book.title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500 rounded" />
