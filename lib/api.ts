@@ -43,7 +43,10 @@ async function fetchWithTimeout(endpoint: string, options: ApiFetchOptions = {},
     const headers = buildHeaders(requestOptions, token);
 
     try {
-        const fullUrl = endpoint.startsWith("http") ? endpoint : `${API_URL}${endpoint}`;
+        let fullUrl = endpoint.startsWith("http") ? endpoint : `${API_URL}${endpoint}`;
+        
+        // Fix potential double /api/ from env + endpoint concatenation
+        fullUrl = fullUrl.replace("/api/api/", "/api/");
         
         return await fetch(fullUrl, {
             ...requestOptions,
@@ -67,4 +70,19 @@ export async function fetchWithAuth(endpoint: string, options: ApiFetchOptions =
 
 export async function fetchPublic(endpoint: string, options: ApiFetchOptions = {}) {
     return fetchWithTimeout(endpoint, options);
+}
+
+/**
+ * Helper to get the correct media URL, handling absolute URLs from the backend
+ */
+export function getMediaUrl(path: string | null | undefined): string {
+    if (!path) return "";
+    
+    const s = String(path);
+    const mediaIndex = s.indexOf("/media/");
+    if (mediaIndex !== -1) {
+        return s.substring(mediaIndex);
+    }
+    
+    return s.startsWith("/") ? s : `/${s}`;
 }

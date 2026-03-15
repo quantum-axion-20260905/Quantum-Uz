@@ -2,7 +2,7 @@ import { Sparkles, PlayCircle, Clock, BookOpen, User, Star } from "lucide-react"
 import { Card, CardContent, CardTitle, CardDescription, CardHeader, CardFooter } from "@/components/ui/card";
 import { YouTubePlayer } from "@/components/youtube-player";
 import Link from "next/link";
-import { fetchPublic } from "@/lib/api";
+import { fetchPublic, getMediaUrl } from "@/lib/api";
 
 export const revalidate = 60;
 
@@ -53,7 +53,7 @@ export default async function AcademyPage() {
                                 <div className="p-4 bg-muted/30">
                                     {course.thumbnail ? (
                                         <div className="aspect-video w-full rounded-xl overflow-hidden relative">
-                                            <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                            <img src={getMediaUrl(course.thumbnail)} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                             <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <PlayCircle className="w-12 h-12 text-white/80" />
                                             </div>

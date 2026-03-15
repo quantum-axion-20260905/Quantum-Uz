@@ -1,4 +1,4 @@
-import { fetchPublic } from "@/lib/api";
+import { fetchPublic, getMediaUrl } from "@/lib/api";
 import { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, BookOpen, Clock, Star, Download, Bookmark, Share2 } from "lucide-react";
@@ -54,7 +54,7 @@ export default async function BookDetailPage(props: { params: Promise<{ id: stri
                     <div className="w-full lg:w-1/3 xl:w-1/4 shrink-0">
                         <div className="w-full aspect-[3/4] rounded-2xl bg-muted/30 border border-border flex items-center justify-center relative overflow-hidden shadow-lg group">
                             {book.cover_image ? (
-                                <img src={book.cover_image} alt={book.title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" />
+                                <img src={getMediaUrl(book.cover_image)} alt={book.title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" />
                             ) : (
                                 <div className="w-3/4 h-5/6 bg-gradient-to-tr from-foreground/80 to-muted-foreground rounded-lg flex items-center justify-center border border-border shadow-md">
                                     <BookOpen className="w-12 h-12 text-background/50 mix-blend-difference" />

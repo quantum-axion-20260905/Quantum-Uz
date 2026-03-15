@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Play } from "lucide-react";
+import { getMediaUrl } from "@/lib/api";
+
 
 interface YouTubePlayerProps {
     videoId: string;
@@ -14,7 +16,8 @@ export function YouTubePlayer({ videoId, title = "YouTube Video", thumbnailUrl }
 
     // If no custom thumbnail, use standard YouTube HQ thumbnail
     const defaultThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-    const posterUrl = thumbnailUrl || defaultThumbnail;
+    const posterUrl = getMediaUrl(thumbnailUrl) || defaultThumbnail;
+
 
     if (isPlaying) {
         return (

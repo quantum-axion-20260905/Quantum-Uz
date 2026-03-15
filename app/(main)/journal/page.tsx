@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Newspaper, FileText, ArrowUpRight, Calendar, Clock, Bookmark, Search, ArrowRight } from "lucide-react";
-import { fetchPublic } from "@/lib/api";
+import { fetchPublic, getMediaUrl } from "@/lib/api";
 
 export const revalidate = 60;
 
@@ -59,7 +59,7 @@ export default async function JournalPage() {
                     <div className="mb-10 group cursor-pointer relative lg:flex items-stretch gap-0 rounded-2xl overflow-hidden glass-panel border border-border glow-effect animate-in fade-in slide-in-from-bottom-8 duration-700 shadow-lg w-full">
                         <div className="lg:w-2/5 min-h-[300px] bg-muted/50 border-r border-border relative overflow-hidden flex items-center justify-center p-6 m-1 rounded-l-[0.9rem]">
                             {featuredPaper.cover_image ? (
-                                <img src={featuredPaper.cover_image} alt={featuredPaper.title} className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" />
+                                <img src={getMediaUrl(featuredPaper.cover_image)} alt={featuredPaper.title} className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" />
                             ) : (
                                 <>
                                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(150,150,150,0.1)_0%,transparent_100%)] opacity-50 block dark:hidden" />

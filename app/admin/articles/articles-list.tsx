@@ -3,6 +3,8 @@
 import { useState, useRef } from "react";
 import { Search, Plus, Edit2, Trash2, X, UploadCloud, AtSign, BookOpen, Clock, Tag, Info } from "lucide-react";
 import { createArticle, updateArticle, deleteArticle } from "./actions";
+import { getMediaUrl } from "@/lib/api";
+
 
 type CategoryType = { id: number; name: string };
 type TagType = { id: number; name: string };
@@ -202,7 +204,8 @@ export default function ArticlesList({
                                         <div className="flex items-center gap-4">
                                             {article.cover_image ? (
                                                 <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-muted border shadow-sm group-hover:shadow-md transition-shadow">
-                                                    <img src={article.cover_image} alt={article.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                                    <img src={getMediaUrl(article.cover_image)} alt={article.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+
                                                 </div>
                                             ) : (
                                                 <div className="w-12 h-12 rounded-lg bg-muted/50 flex-shrink-0 flex items-center justify-center text-muted-foreground border shadow-sm">
@@ -364,7 +367,8 @@ export default function ArticlesList({
                                             />
                                             {previewImage ? (
                                                 <div className="flex items-center gap-3 px-3 w-full">
-                                                    <img src={previewImage} alt="Preview" className="w-8 h-8 rounded object-cover" />
+                                                    <img src={getMediaUrl(previewImage)} alt="Preview" className="w-8 h-8 rounded object-cover" />
+
                                                     <span className="text-sm font-medium text-foreground truncate flex-1">Rasm yuklandi</span>
                                                     <button type="button" className="text-xs text-primary font-bold px-2 py-1 bg-primary/10 rounded">O&apos;zgartirish</button>
                                                 </div>

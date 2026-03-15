@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { Search, Plus, Edit2, Trash2, X, Image as ImageIcon, UploadCloud, BookOpen, Clock, Tag, Award } from "lucide-react";
 import { createCourse, updateCourse, deleteCourse } from "./actions";
+import { getMediaUrl } from "@/lib/api";
 
 type CategoryType = { id: number; name: string };
 type TagType = { id: number; name: string };
@@ -206,7 +207,7 @@ export default function CoursesList({
                                         <div className="flex items-center gap-4">
                                             {course.thumbnail ? (
                                                 <div className="w-16 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-muted border shadow-sm group-hover:shadow-md transition-shadow">
-                                                    <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                                    <img src={getMediaUrl(course.thumbnail)} alt={course.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                                                 </div>
                                             ) : (
                                                 <div className="w-16 h-12 rounded-lg bg-muted/50 flex-shrink-0 flex items-center justify-center text-muted-foreground border shadow-sm">
@@ -343,7 +344,8 @@ export default function CoursesList({
 
                                         {previewImage ? (
                                             <>
-                                                <img src={previewImage} alt="Preview" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                                                <img src={getMediaUrl(previewImage)} alt="Preview" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+
                                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                                     <span className="px-4 py-2 bg-black/40 text-white rounded-lg text-sm font-medium flex items-center gap-2">
                                                         <UploadCloud className="w-4 h-4" /> Rasmni almashtirish

@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { Search, Plus, Edit2, Trash2, X, Image as ImageIcon, UploadCloud, AtSign, FileText, Tag, Book } from "lucide-react";
 import { createBook, updateBook, deleteBook } from "./actions";
+import { getMediaUrl } from "@/lib/api";
 
 type CategoryType = { id: number; name: string };
 type TagType = { id: number; name: string };
@@ -219,7 +220,7 @@ export default function BooksList({
                                         <div className="flex items-center gap-4">
                                             {book.cover_image ? (
                                                 <div className="w-10 h-14 rounded-md overflow-hidden flex-shrink-0 bg-muted border shadow-sm group-hover:shadow-md transition-shadow">
-                                                    <img src={book.cover_image} alt={book.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                                    <img src={getMediaUrl(book.cover_image)} alt={book.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                                                 </div>
                                             ) : (
                                                 <div className="w-10 h-14 rounded-md bg-muted/50 flex-shrink-0 flex items-center justify-center text-muted-foreground border shadow-sm">
@@ -408,7 +409,8 @@ export default function BooksList({
                                             />
                                             {previewImage ? (
                                                 <div className="flex items-center gap-3 px-3 w-full">
-                                                    <img src={previewImage} alt="Preview" className="w-8 h-8 rounded object-cover" />
+                                                    <img src={getMediaUrl(previewImage)} alt="Preview" className="w-8 h-8 rounded object-cover" />
+
                                                     <span className="text-sm font-medium text-foreground truncate flex-1">Rasm yuklandi</span>
                                                     <button type="button" className="text-xs text-primary font-bold px-2 py-1 bg-primary/10 rounded">O&apos;zgartirish</button>
                                                 </div>

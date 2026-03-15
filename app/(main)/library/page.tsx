@@ -1,7 +1,7 @@
 import { LayoutGrid, List, Search, Star, BookOpen, ChevronRight, Bookmark } from "lucide-react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import Link from "next/link";
-import { fetchPublic } from "@/lib/api";
+import { fetchPublic, getMediaUrl } from "@/lib/api";
 
 export const revalidate = 60;
 
@@ -120,7 +120,7 @@ export default async function LibraryPage() {
                                     <Link href={`/library/${book.slug || book.id}`} className="flex-1 flex flex-col h-full">
                                         <div className="aspect-[3/4] p-4 flex flex-col items-center justify-center bg-muted/30 relative overflow-hidden backdrop-blur-md shrink-0 border-b border-border/50">
                                             {book.cover_image ? (
-                                                <img src={book.cover_image} alt={book.title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500 rounded" />
+                                                <img src={getMediaUrl(book.cover_image)} alt={book.title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500 rounded" />
                                             ) : (
                                                 <div className="w-2/3 h-5/6 bg-gradient-to-tr from-foreground/80 to-muted-foreground rounded-md flex items-center justify-center border border-border shadow-md transform group-hover:scale-105 transition-transform duration-500 group-hover:-rotate-3">
                                                     <BookOpen className="w-8 h-8 text-background/50 mix-blend-difference" />
