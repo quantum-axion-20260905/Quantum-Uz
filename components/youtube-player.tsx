@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Play } from "lucide-react";
-import { getMediaUrl } from "@/lib/api";
+import { getMediaUrl } from "@/lib/client/utils";
 
 
 interface YouTubePlayerProps {
