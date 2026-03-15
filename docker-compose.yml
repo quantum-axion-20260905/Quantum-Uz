@@ -1,6 +1,21 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:-Data}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-root}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build: 
       context: ./Quantum uz backend
@@ -18,20 +33,22 @@ services:
       - DB_NAME=${DB_NAME:-Data}
       - DB_USER=${DB_USER:-postgres}
       - DB_PASSWORD=${DB_PASSWORD:-root}
-      - DB_HOST=host.docker.internal
+      - DB_HOST=db
       - DB_PORT=5432
       - DJANGO_DEBUG=False
       - DJANGO_ALLOWED_HOSTS=*
     ports:
       - "8000:8000"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    depends_on:
+      db:
+        condition: service_healthy
 
   frontend:
     build:
       context: .
       dockerfile: Dockerfile
       args:
+        # Default fallback, can be overridden by github action or .env when deploying
         - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
     restart: always
     ports:
@@ -43,5 +60,6 @@ services:
       - backend
 
 volumes:
+  postgres_data:
   backend_static:
   backend_media:
