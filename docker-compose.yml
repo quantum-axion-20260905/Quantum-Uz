@@ -27,8 +27,8 @@ services:
              gunicorn project.wsgi:application --bind 0.0.0.0:8000"
     volumes:
       - ./Quantum uz backend:/app
-      - backend_static:/app/static
-      - backend_media:/app/media
+      - ./Quantum uz backend/static:/app/static
+      - ./Quantum uz backend/media:/app/media
     environment:
       - DB_NAME=${DB_NAME:-Data}
       - DB_USER=${DB_USER:-postgres}
@@ -61,5 +61,3 @@ services:
 
 volumes:
   postgres_data:
-  backend_static:
-  backend_media:
