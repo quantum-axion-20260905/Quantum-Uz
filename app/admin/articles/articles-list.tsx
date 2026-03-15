@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { Search, Plus, Edit2, Trash2, X, UploadCloud, AtSign, BookOpen, Clock, Tag, Info } from "lucide-react";
 import { createArticle, updateArticle, deleteArticle } from "./actions";
-import { getMediaUrl } from "@/lib/api";
+import { getMediaUrl } from "@/lib/client/utils";
 
 
 type CategoryType = { id: number; name: string };
