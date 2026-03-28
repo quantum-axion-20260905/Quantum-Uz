@@ -1,5 +1,3 @@
-import { cookies } from "next/headers";
-
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
 const READ_TIMEOUT_MS = 8000;
 const WRITE_TIMEOUT_MS = 60000;
@@ -13,9 +11,10 @@ function buildHeaders(options: RequestInit, token?: string): Record<string, stri
         ...((options.headers as Record<string, string>) || {}),
     };
 
-    // Robust check for FormData to avoid manual Content-Type when sending multipart data
-    const isFormData = options.body instanceof FormData || 
-                       (options.body && typeof (options.body as any).append === 'function');
+    const body = options.body;
+    const isFormData =
+        body instanceof FormData ||
+        (typeof body === "object" && body !== null && "append" in body && typeof body.append === "function");
 
     if (isFormData) {
         // multipart/form-data boundary will be set automatically by fetch
@@ -47,6 +46,12 @@ async function fetchWithTimeout(endpoint: string, options: ApiFetchOptions = {},
         
         // Fix potential double /api/ from env + endpoint concatenation
         fullUrl = fullUrl.replace("/api/api/", "/api/");
+
+        // Append project filter for quantum-uz by default for GET requests
+        if (method === "GET" && !fullUrl.includes("project=")) {
+            const separator = fullUrl.includes("?") ? "&" : "?";
+            fullUrl = `${fullUrl}${separator}project=quantum-uz`;
+        }
         
         return await fetch(fullUrl, {
             ...requestOptions,
@@ -56,16 +61,6 @@ async function fetchWithTimeout(endpoint: string, options: ApiFetchOptions = {},
     } finally {
         clearTimeout(timer);
     }
-}
-
-/**
- * Helper to fetch data from DRF backend with Admin Token attached
- */
-export async function fetchWithAuth(endpoint: string, options: ApiFetchOptions = {}) {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("admin_access_token")?.value;
-
-    return fetchWithTimeout(endpoint, options, token);
 }
 
 export async function fetchPublic(endpoint: string, options: ApiFetchOptions = {}) {

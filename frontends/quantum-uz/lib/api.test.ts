@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
-import { fetchWithAuth } from './api'
+import { fetchPublic } from './api'
 
 global.fetch = vi.fn() as Mock
 
-describe('fetchWithAuth', () => {
+describe('fetchPublic', () => {
     beforeEach(() => {
         vi.clearAllMocks()
     })
@@ -12,7 +12,7 @@ describe('fetchWithAuth', () => {
         const mockResponse = { ok: true, json: () => Promise.resolve({ data: 'test' }) } as Response;
         (global.fetch as Mock).mockResolvedValue(mockResponse)
 
-        await fetchWithAuth('/api/test/')
+        await fetchPublic('/api/test/')
         
         expect(global.fetch).toHaveBeenCalledWith(
             expect.stringContaining('http://127.0.0.1:8000/api/test/'),
@@ -27,7 +27,7 @@ describe('fetchWithAuth', () => {
         const mockResponse = { ok: true, json: () => Promise.resolve({ success: true }) } as Response;
         (global.fetch as Mock).mockResolvedValue(mockResponse)
 
-        await fetchWithAuth('/api/upload/', {
+        await fetchPublic('/api/upload/', {
             method: 'POST',
             body: formData
         })

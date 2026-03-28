@@ -1,24 +1,9 @@
-version: '3.8'
 
 services:
-  db:
-    image: postgres:15-alpine
-    restart: always
-    environment:
-      POSTGRES_DB: ${DB_NAME:-Data}
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-root}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   backend:
+    container_name: quantum-backend
     build: 
-      context: ./Quantum uz backend
+      context: ./backend
       dockerfile: Dockerfile
     restart: always
     command: >
@@ -26,37 +11,61 @@ services:
              python manage.py collectstatic --noinput && 
              gunicorn project.wsgi:application --bind 0.0.0.0:8000"
     volumes:
-      - ./Quantum uz backend:/app
-      - ./Quantum uz backend/static:/app/static
-      - ./Quantum uz backend/media:/app/media
+      - /srv/data/quantum/media:/app/media
+      - /srv/data/quantum/static:/app/static
     environment:
-      - DB_NAME=${DB_NAME:-Data}
+      - DB_NAME=${DB_NAME:-quantum_db}
       - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-root}
-      - DB_HOST=db
+      - DB_PASSWORD=${DB_PASSWORD:-Pg_8S7vZx2mKq41uB6rT}
+      - DB_HOST=shared_postgres
       - DB_PORT=5432
       - DJANGO_DEBUG=False
       - DJANGO_ALLOWED_HOSTS=*
     ports:
       - "8000:8000"
-    depends_on:
-      db:
-        condition: service_healthy
+    networks:
+      - shared_db
 
-  frontend:
+  quantum-uz:
     build:
-      context: .
+      context: ./frontends/quantum-uz
       dockerfile: Dockerfile
       args:
-        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://backend:8000}
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://62.72.32.37:8000}
     restart: always
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://backend:8000}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://62.72.32.37:8000}
       - NODE_ENV=production
-    depends_on:
-      - backend
+    networks:
+      - shared_db
 
-volumes:
-  postgres_data:
+  ket-website:
+    build:
+      context: ./frontends/ket-website
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://62.72.32.37:8000}
+    restart: always
+    ports:
+      - "3002:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://62.72.32.37:8000}
+      - NODE_ENV=production
+    networks:
+      - shared_db
+
+  ket-studio:
+    build:
+      context: ./frontends/ket-studio
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3005:3000"
+    networks:
+      - shared_db
+
+networks:
+  shared_db:
+    external: true
